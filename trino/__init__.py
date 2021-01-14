@@ -15,7 +15,6 @@ from __future__ import print_function
 
 from . import auth
 from . import dbapi
-from . import client
 from . import constants
 from . import exceptions
 from . import logging
