@@ -30,6 +30,8 @@ import math
 
 from trino import constants
 import trino.exceptions
+# Needed for SQLAlchemy... try dbapi_exception_translation_map in https://github.com/sqlalchemy/sqlalchemy/blob/6137d223be8e596fb2d7c78623ab22162db8ea6e/lib/sqlalchemy/engine/interfaces.py#L20
+from trino.exceptions import Error
 import trino.client
 import trino.logging
 from trino.transaction import Transaction, IsolationLevel, NO_TRANSACTION
@@ -202,6 +204,14 @@ class Cursor(object):
 
     @property
     def description(self):
+        import pdb; pdb.set_trace()
+        row = self.fetchone()
+        self._iterator = iter(result)
+        #self._fetch_while(
+        #    lambda: self._columns is None and
+        #    self._state not in (self._STATE_NONE, self._STATE_FINISHED)
+        #)
+
         if self._query.columns is None:
             return None
 
