@@ -16,27 +16,30 @@ import pytest
 import pytz
 
 import trino
-from conftest import TRINO_VERSION
 from trino.exceptions import TrinoQueryError
 from trino.transaction import IsolationLevel
 
 
-@pytest.fixture
-def trino_connection(run_trino):
-    _, host, port = run_trino
+HOST = "localhost"
+PORT = 8080
 
+
+@pytest.fixture
+def trino_connection():
     yield trino.dbapi.Connection(
-        host=host, port=port, user="test", source="test", max_attempts=1
+        host=HOST,
+        port=PORT,
+        user="test",
+        source="test",
+        max_attempts=1
     )
 
 
 @pytest.fixture
-def trino_connection_with_transaction(run_trino):
-    _, host, port = run_trino
-
+def trino_connection_with_transaction():
     yield trino.dbapi.Connection(
-        host=host,
-        port=port,
+        host=HOST,
+        port=PORT,
         user="test",
         source="test",
         max_attempts=1,
@@ -50,7 +53,7 @@ def test_select_query(trino_connection):
     rows = cur.fetchall()
     assert len(rows) > 0
     row = rows[0]
-    assert row[2] == TRINO_VERSION
+    assert row[2] == '355'
     columns = dict([desc[:2] for desc in cur.description])
     assert columns["node_id"] == "varchar"
     assert columns["http_uri"] == "varchar"
@@ -304,17 +307,16 @@ def test_cancel_query(trino_connection):
     assert "Cancel query failed; no running query" in str(cancel_error.value)
 
 
-def test_session_properties(run_trino):
-    _, host, port = run_trino
-
+def test_session_properties():
     connection = trino.dbapi.Connection(
-        host=host,
-        port=port,
+        host=HOST,
+        port=PORT,
         user="test",
         source="test",
         session_properties={"query_max_run_time": "10m", "query_priority": "1"},
         max_attempts=1,
     )
+
     cur = connection.cursor()
     cur.execute("SHOW SESSION")
     rows = cur.fetchall()
